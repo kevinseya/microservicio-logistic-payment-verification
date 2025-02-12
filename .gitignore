@@ -22,7 +22,7 @@
 /coverage.out
 
 # Modules and dependencies
-go.sum
+
 go.work
 
 # Sensitive environment and configuration files
