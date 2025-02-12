@@ -12,13 +12,13 @@ import (
 
 type PaymentController struct {
 	PaymentService *service.PaymentService
-	Config         *config.Config // 🔹 Agregamos la configuración aquí
+	Config         *config.Config //  We added the configuration here
 }
 
 func NewPaymentController(paymentService *service.PaymentService) *PaymentController {
 	return &PaymentController{
 		PaymentService: paymentService,
-		Config:         config.AppConfig, // 🔹 Usamos la config global
+		Config:         config.AppConfig, // We use the global config
 	}
 }
 
@@ -45,7 +45,7 @@ func (pc *PaymentController) ValidatePayment(w http.ResponseWriter, r *http.Requ
 }
 
 func (pc *PaymentController) sendWebhook(paymentIntent string) {
-	webhookURL := pc.Config.WebhookURL // 🔹 Ahora usa la URL de la configuración
+	webhookURL := pc.Config.WebhookURL //  Now use the configuration URL
 	if webhookURL == "" {
 		log.Println("Webhook URL is not set in the configuration.")
 		return
@@ -60,7 +60,7 @@ func (pc *PaymentController) sendWebhook(paymentIntent string) {
 		return
 	}
 
-	// Enviar la solicitud POST al webhook
+	// Send the POST request to the webhook
 	resp, err := http.Post(webhookURL, "application/json", bytes.NewBuffer(jsonPayload))
 	if err != nil {
 		log.Printf("Error sending POST request to webhook: %v", err)
@@ -68,7 +68,7 @@ func (pc *PaymentController) sendWebhook(paymentIntent string) {
 	}
 	defer resp.Body.Close()
 
-	// Manejar la respuesta del webhook
+	// Handle the webhook response
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("Webhook responded with status: %s", resp.Status)
 	} else {
