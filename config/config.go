@@ -9,13 +9,13 @@ import (
 
 type Config struct {
 	StripeSecretKey string
-	WebhookURL      string // 🔹 Cambia `webhookURL` a `WebhookURL` para exportarlo
+	WebhookURL      string //  Change `webhook URL` to `Webhook URL` to export
 }
 
-// ✅ Definir variable global
+// Define global variable
 var AppConfig *Config
 
-// ✅ Guardar la configuración en `AppConfig`
+//  Save configuration to `AppConfig`
 func LoadConfig() {
 	err := godotenv.Load()
 	if err != nil {
