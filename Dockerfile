@@ -1,33 +1,33 @@
-# Fase de compilación
+# Compilation phase
 FROM golang:1.23.4-alpine as builder
  
 WORKDIR /app
  
-# Copia los archivos de dependencias y descarga módulos
+# Copy dependency files and download modules
 COPY go.mod go.sum ./
 RUN go mod tidy
  
-# Copia todo el proyecto (incluyendo .env localmente, si existe)
+# Copy the entire project (including .env locally, if it exists)
 COPY . .
  
-# Compila el binario
+# Compile the binary
 RUN go build -o main .
  
-# Si existe .env, se copia a env.file; si no, se crea un archivo vacío.
+# If .env exists, it is copied to env.file; otherwise, an empty file is created.
 RUN if [ -f .env ]; then cp .env env.file; else touch env.file; fi
  
-# Fase final
+# Final phase
 FROM alpine:latest
  
-# Instala dependencias necesarias
+# Install required dependencies
 RUN apk --no-cache add postgresql-client
  
 WORKDIR /root/
  
-# Copia el binario compilado
+# Copy the compiled binary
 COPY --from=builder /app/main .
  
-# Copia el archivo env.file (lo renombramos a .env en la imagen final)
+# Copy the file env.file (we renamed it to .env in the final image)
 COPY --from=builder /app/env.file .env
  
 EXPOSE 8088
