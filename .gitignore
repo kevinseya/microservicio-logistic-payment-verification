@@ -1,0 +1,57 @@
+# Go Binary Files
+/bin/
+/obj/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go Cache Files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Go module files
+/go/pkg/
+/go/bin/
+/go/src/
+/vendor/
+/coverage.out
+
+# Modules and dependencies
+go.sum
+go.work
+
+# Sensitive environment and configuration files
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+config/config.json
+
+# PostgreSQL database files
+*.sql
+*.db
+dump.sql
+pgdata/
+pg_log/
+postgresql.conf
+pg_hba.conf
+
+# IDE files and code editor
+.vscode/
+.idea/
+*.iml
+*.sublime-workspace
+*.sublime-project
+
+# Stripe CLI Files
+stripe-cli.log
+stripe-events.log
+
+# GORM cache and temporary files
+/tmp/
