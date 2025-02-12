@@ -44,18 +44,18 @@ jobs:
               sudo systemctl enable docker
             fi
 
-            # Bajar la imagen
+           # Download the image
             sudo docker pull kevinseya/logistic_payment_verification:latest
 
-            # Detener y eliminar contenedor anterior
+            # Stop and remove previous container
             sudo docker stop logistic_payment_verification || true
             sudo docker rm logistic_payment_verification || true
 
-            # Generar archivo .env con las variables secretas
+            # Generate .env file with secret variables
             echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
             echo "NOTIFICATION_WEBHOOK_PAYMENT_URL=${{ secrets.NOTIFICATION_WEBHOOK_PAYMENT_URL }}" >> .env
 
-            # Ejecutar nuevo contenedor
+            # Run new container
             sudo docker run -d --name logistic_payment_verification \
               --env-file .env \
               -p 8088:8088 \
