@@ -1,0 +1,63 @@
+name: CI/CD to EC2
+
+on:
+  push:
+    branches: ["test"]
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker Image
+        run: |
+          echo "Building Docker image..."
+          docker build -t kevinseya/logistic_payment_verification:latest .
+
+      - name: Push Docker Image
+        run: |
+          echo "Pushing Docker image to Docker Hub..."
+          docker push kevinseya/logistic_payment_verification:latest
+
+  deploy-to-ec2:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up SSH key for EC2 access
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_PRIVATE_KEY }}
+
+      - name: SSH into EC2 and deploy container
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_DNS }} << 'EOF'
+            # Verificar e instalar Docker si es necesario.
+            if ! command -v docker &> /dev/null; then
+              sudo yum update -y
+              sudo yum install -y docker
+              sudo systemctl start docker
+              sudo systemctl enable docker
+            fi
+
+            # Bajar la imagen
+            sudo docker pull kevinseya/logistic_payment_verification:latest
+
+            # Detener y eliminar contenedor anterior
+            sudo docker stop logistic_payment_verification || true
+            sudo docker rm logistic_payment_verification || true
+
+            # Generar archivo .env con las variables secretas
+            echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
+            echo "NOTIFICATION_WEBHOOK_PAYMENT_URL=${{ secrets.NOTIFICATION_WEBHOOK_PAYMENT_URL }}" >> .env
+
+            # Ejecutar nuevo contenedor
+            sudo docker run -d --name logistic_payment_verification \
+              --env-file .env \
+              -p 8088:8088 \
+              kevinseya/logistic_payment_verification:latest
+          EOF
